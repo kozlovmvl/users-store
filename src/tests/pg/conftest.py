@@ -1,9 +1,9 @@
 import pytest_asyncio
-from pg.core import async_engine
-from pg.scheme import Base, UserSchema
 from sqlalchemy.ext.asyncio import async_sessionmaker
+from users_core.models import Password, User
 
-from users_core.models import User
+from pg.core import async_engine
+from pg.scheme import Base, PasswordSchema, UserSchema
 
 
 @pytest_asyncio.fixture(loop_scope="session")
@@ -19,8 +19,20 @@ async def mock_session_maker():
 
 @pytest_asyncio.fixture(loop_scope="session")
 async def mock_user(mock_session_maker):
+    user_schema = UserSchema(username="user1", email="user1@host")
     async with mock_session_maker() as session:
-        user_schema = UserSchema(username="user1", email="user1@host")
         session.add(user_schema)
         await session.commit()
     yield User.model_validate(user_schema)
+
+
+@pytest_asyncio.fixture(loop_scope="session")
+async def mock_password(mock_session_maker, mock_user):
+    password = Password(user_id=mock_user.id, raw="Pass@12345")
+    password_schema = PasswordSchema(
+        user_id=password.user_id, hash=password.hash, created_at=password.created_at
+    )
+    async with mock_session_maker() as session:
+        session.add(password_schema)
+        await session.commit()
+    yield password

@@ -1,8 +1,10 @@
 from datetime import datetime
 from uuid import UUID, uuid4
+
+from sqlalchemy import UUID as SA_UUID
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import UUID as SA_UUID, ForeignKey, String
 
 
 class Base(DeclarativeBase, AsyncAttrs):
@@ -21,5 +23,5 @@ class PasswordSchema(Base):
     __tablename__ = "passwords"
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), primary_key=True)
-    value: Mapped[str] = mapped_column(String)
+    hash: Mapped[str] = mapped_column(String)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now())

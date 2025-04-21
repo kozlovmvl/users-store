@@ -1,6 +1,5 @@
 import pytest
-from sqlalchemy import select, exists
-
+from sqlalchemy import exists, select
 from users_core.models import User
 
 from pg.repositories import UserRepository

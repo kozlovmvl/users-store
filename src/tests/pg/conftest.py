@@ -2,8 +2,8 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from users_core.models import Password, User
 
-from pg.core import async_engine
-from pg.scheme import Base, PasswordSchema, UserSchema
+from users_store.pg.core import async_engine
+from users_store.pg.scheme import Base, PasswordSchema, UserSchema
 
 
 @pytest_asyncio.fixture(loop_scope="session")

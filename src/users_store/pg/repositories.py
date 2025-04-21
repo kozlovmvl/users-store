@@ -4,8 +4,8 @@ from uuid import UUID
 from sqlalchemy import delete, select
 from users_core.models import Password, User
 
-from pg.core import AsyncSessionMaker
-from pg.scheme import PasswordSchema, UserSchema
+from users_store.pg.core import AsyncSessionMaker
+from users_store.pg.scheme import PasswordSchema, UserSchema
 
 
 @runtime_checkable

@@ -2,8 +2,8 @@ import pytest
 from sqlalchemy import exists, select
 from users_core.models import User
 
-from pg.repositories import UserRepository
-from pg.scheme import UserSchema
+from users_store.pg.repositories import UserRepository
+from users_store.pg.scheme import UserSchema
 
 
 @pytest.mark.asyncio(loop_scope="session")

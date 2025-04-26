@@ -15,5 +15,5 @@ db_url = URL.create(
 type AsyncSessionMaker = async_sessionmaker[AsyncSession]
 async_engine = create_async_engine(url=db_url)
 async_session_maker: AsyncSessionMaker = async_sessionmaker(
-    engine=async_engine, expire_on_commit=False
+    bind=async_engine, expire_on_commit=False
 )

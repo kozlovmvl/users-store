@@ -2,12 +2,14 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from users_core.models import Password, User
 
-from users_store.pg.core import async_engine
+from tests.pg.settings import settings
+from users_store.pg.core import engine_factory
 from users_store.pg.scheme import Base, PasswordSchema, UserSchema
 
 
 @pytest_asyncio.fixture(loop_scope="session")
 async def mock_session_maker():
+    async_engine = engine_factory(**settings.model_dump())
     async with async_engine.begin() as connection:
         await connection.run_sync(Base.metadata.drop_all)
         await connection.run_sync(Base.metadata.create_all)

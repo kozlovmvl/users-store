@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "users-store"
-version = "0.1.4"
+version = "0.1.5"
 description = ""
 authors = ["kozlovmv"]
 readme = "README.md"

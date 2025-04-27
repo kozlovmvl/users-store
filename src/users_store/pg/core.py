@@ -1,19 +1,31 @@
 from sqlalchemy import URL
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-
-from users_store.pg.settings import settings
-
-db_url = URL.create(
-    drivername="postgresql+asyncpg",
-    host=settings.POSTRGES_HOST,
-    port=settings.POSTGRES_PORT,
-    database=settings.POSTGRES_DB,
-    username=settings.POSTGRES_USER,
-    password=settings.POSTGRES_PASSWORD,
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
 )
 
 type AsyncSessionMaker = async_sessionmaker[AsyncSession]
-async_engine = create_async_engine(url=db_url)
-async_session_maker: AsyncSessionMaker = async_sessionmaker(
-    bind=async_engine, expire_on_commit=False
-)
+
+
+def engine_factory(
+    postgres_host: str,
+    postgres_port: int,
+    postgres_db: str,
+    postgres_user: str,
+    postgres_password: str,
+) -> AsyncEngine:
+    db_url = URL.create(
+        drivername="postgresql+asyncpg",
+        host=postgres_host,
+        port=postgres_port,
+        database=postgres_db,
+        username=postgres_user,
+        password=postgres_password,
+    )
+    return create_async_engine(url=db_url)
+
+
+def session_maker_factory(engine) -> AsyncSessionMaker:
+    return async_sessionmaker(bind=engine, expire_on_commit=False)

@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import delete, select
 from users_core.models import Password, User
 
-from users_store.pg.core import AsyncSessionMaker, async_session_maker
+from users_store.pg.core import AsyncSessionMaker
 from users_store.pg.scheme import PasswordSchema, UserSchema
 
 
@@ -29,7 +29,7 @@ class PasswordRepositoryProtocol(Protocol):
 
 
 class UserRepository:
-    def __init__(self, async_session_maker: AsyncSessionMaker = async_session_maker):
+    def __init__(self, async_session_maker: AsyncSessionMaker):
         self.async_session_maker = async_session_maker
 
     async def get_by_id(self, user_id: UUID) -> User:
@@ -65,7 +65,7 @@ class UserRepository:
 
 
 class PasswordRepository:
-    def __init__(self, async_session_maker: AsyncSessionMaker = async_session_maker):
+    def __init__(self, async_session_maker: AsyncSessionMaker):
         self.async_session_maker = async_session_maker
 
     async def get_by_obj(self, raw_obj: Password) -> Password:

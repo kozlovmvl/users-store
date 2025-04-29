@@ -1,20 +1,31 @@
+import uuid
+
 import pytest
 from sqlalchemy import exists, select
 from users_core.models import Password
 
+from users_store.pg.exc import PasswordNotFound, UserNotFound
 from users_store.pg.repositories import PasswordRepository
 from users_store.pg.scheme import PasswordSchema
 
 
 @pytest.mark.asyncio(loop_scope="session")
-async def test_get_by_obj(mock_session_maker, mock_password):
+async def test_get_by_obj_existing_password(mock_session_maker, mock_password):
     repo = PasswordRepository(async_session_maker=mock_session_maker)
     result = await repo.get_by_obj(raw_obj=mock_password)
     assert result.user_id == mock_password.user_id
 
 
 @pytest.mark.asyncio(loop_scope="session")
-async def test_create_password(mock_session_maker, mock_user):
+async def test_get_by_obj_non_existent_password(mock_session_maker, mock_password):
+    repo = PasswordRepository(async_session_maker=mock_session_maker)
+    mock_password.user_id = uuid.uuid4()
+    with pytest.raises(PasswordNotFound):
+        _ = await repo.get_by_obj(raw_obj=mock_password)
+
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_create_password_for_existing_user(mock_session_maker, mock_user):
     repo = PasswordRepository(async_session_maker=mock_session_maker)
     password = Password(user_id=mock_user.id, raw="Pass@12345")
     await repo.create(password)
@@ -26,6 +37,14 @@ async def test_create_password(mock_session_maker, mock_user):
             )
         ).scalar_one()
         assert password_schema.hash == password.hash
+
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_create_password_for_non_existent_user(mock_session_maker):
+    repo = PasswordRepository(async_session_maker=mock_session_maker)
+    password = Password(user_id=uuid.uuid4(), raw="Pass@12345")
+    with pytest.raises(UserNotFound):
+        await repo.create(password)
 
 
 @pytest.mark.asyncio(loop_scope="session")

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from users_core.models import Password, User
@@ -13,19 +15,27 @@ async def mock_session_maker():
     async with async_engine.begin() as connection:
         await connection.run_sync(Base.metadata.drop_all)
         await connection.run_sync(Base.metadata.create_all)
-
         yield async_sessionmaker(bind=connection, expire_on_commit=False)
-
-        await connection.run_sync(Base.metadata.drop_all)
+        if connection.in_transaction():
+            await connection.run_sync(Base.metadata.drop_all)
 
 
 @pytest_asyncio.fixture(loop_scope="session")
 async def mock_user(mock_session_maker):
-    user_schema = UserSchema(username="user1", email="user1@host")
+    user_1_schema = UserSchema(
+        id=UUID("10c1999c-b2c5-4e5f-83d2-54cd27497765"),
+        username="user1",
+        email="user1@host",
+    )
+    user_2_schema = UserSchema(
+        id=UUID("6455a2d0-ba83-4852-b7b7-35cca5041638"),
+        username="user2",
+        email="user2@host",
+    )
     async with mock_session_maker() as session:
-        session.add(user_schema)
+        session.add_all([user_1_schema, user_2_schema])
         await session.commit()
-    yield User.model_validate(user_schema)
+    yield User.model_validate(user_1_schema)
 
 
 @pytest_asyncio.fixture(loop_scope="session")
